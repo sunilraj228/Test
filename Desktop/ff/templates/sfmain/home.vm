@@ -1,0 +1,130 @@
+<table width="100%" border="0" cellpadding="4" cellspacing="0">
+  <tr valign="top">
+    <td class="left-navigation-container" >
+      <!-- Left Nav stuff -->
+      <div class="sidebar-wrap login-container">
+      <div class="left-navigation-header">
+      #if ($PAGE_INFO.isLoggedIn())
+        ${MESSAGE.get("SfMain", "index.left_nav.most_active_box.title")}
+      #else
+        ${MESSAGE.get("SfMain", "index.left_nav.login_box.title")}
+      #end
+      </div>
+      #if (!$PAGE_INFO.isLoggedIn())
+        <div class="left-navigation" >
+        #if ($GLOBAL.isUsingBrowserCachePassword())
+          #set ($autoComplete = "on")
+          #set ($resetUsrFill = "null")
+          #set ($resetPwdFill = "null")
+        #else
+          #set ($autoComplete = "off")
+          #set ($resetUsrFill = "javascript:document.getElementById('username').value=''")
+          #set ($resetPwdFill = "javascript:document.getElementById('pwd').value=''")
+        #end
+        ${FORM.startForm("/sfmain/do/login", "localLogin", "login", "$autoComplete")}
+          <table class="LeftNavContent" width="100%">
+            <input type="hidden" name="$GLOBAL.getXsrfTokenName()" value="$GLOBAL.getXsrfToken()" />
+            #if (!$GLOBAL.isTeamforgeIDPEnabled() && !$GLOBAL.isSamlIDPEnabled() && !$GLOBAL.isSamlLdapIDPEnabled())
+              <tr>
+                <td class="nowrap"><label for="username">${MESSAGE.getFieldLabel("SfMain", "sfmain.prompt.username", true)}</label></td>
+                <td><input type="text" name="username" id="username" class="inputfield" size="13" autocomplete="$autoComplete" onselect="$resetUsrFill"/></td>
+              </tr>
+              <tr>
+                <td><label for="pwd">${MESSAGE.getFieldLabel("common", "prompt.password", true)}</label></td>
+                <td><input type="password" name="password" id="pwd" class="inputfield" size="13" onkeypress="javascript:submitLoginOnEnter(event)" autocomplete="$autoComplete" onselect="$resetPwdFill"/></td>
+              </tr>
+            #end
+            #if (!$GLOBAL.isUsingExternalAuthentication() || $GLOBAL.isSamlIDPEnabled() || ($GLOBAL.isEnableLocalAndAccountMgmt() && ($GLOBAL.isSamlLdapIDPEnabled() || $GLOBAL.isLdapIDPEnabled())))
+              <tr>
+                <td class="forgotPassword" colspan="2">
+                  <a href="${LINK.getPageUrl("", "/sfmain/do/forgotPassword")}">${MESSAGE.get("SfMain", "sfmain.forgotpassword.link")}</a>
+                </td>
+              </tr>
+            #end
+            <tr>
+              #set ($submitText = $MESSAGE.get("SfMain", "sfmain.login"))
+              <td colspan="2"><div class="AlignRight">${PAGE_INFO.createSubmitButton("loginButton", "localLogin", "<strong>$submitText</strong>")}</div></td>
+            </tr>
+            <tr><td colspan="2"><hr class="separator"></td></tr>
+            <tr>
+              <td colspan="2">
+                  #if ($GLOBAL.isUsingExternalAuthentication())
+                    <span class="newusers-enabled">${MESSAGE.get("SfMain", "index.left_nav.new_user_box.title")}</span>
+                    ${MESSAGE.get("SfMain", "index.left_nav.new_user_box.login_to_create_account")}
+                  #elseif ($GLOBAL.isSelfCreationEnabled())
+                    <span class="newusers-enabled">${MESSAGE.get("SfMain", "index.left_nav.new_user_box.title")}</span>
+                     #if ($GLOBAL.isApprovalRequiredForNewUsers())
+                      ${MESSAGE.get("SfMain", "index.left_nav.new_user_box.create_account_with_approval_text")}
+                    #else
+                      ${MESSAGE.get("SfMain", "index.left_nav.new_user_box.create_account_text")}
+                    #end
+                    <div class="new-user">
+                    <a class="btn" href="${LINK.getPageUrl("", "/sfmain/do/createUserRequest")}">${MESSAGE.get("SfMain", "index.left_nav.new_user_box.create_account")}</a>
+                    </div>
+                  #else
+                    <span class="newusers-disabled">${MESSAGE.get("SfMain", "index.left_nav.new_user_box.title")}</span>
+                    ${MESSAGE.get("SfMain", "index.left_nav.new_user_box.ask_sysadmin_for_account")}
+                  #end
+              </td>
+            </tr>
+          </table>
+        ${FORM.endForm()}
+        #if (!$GLOBAL.isTeamforgeIDPEnabled() && !$GLOBAL.isSamlIDPEnabled() && !$GLOBAL.isSamlLdapIDPEnabled())
+         <script type="text/javascript">
+           document.getElementById('username').focus();
+          </script>
+         #end
+        </div>
+        </div>
+      #end
+     </div>
+     <div class="sidebar-wrap QuickLinks">
+      <div class="left-navigation-header">
+        ${MESSAGE.get("SfMain", "index.left_nav.quick_links.title")}
+      </div>
+      <div class="left-navigation">
+        <table border="0">
+          <tr>
+            <td><strong><a href="javascript:showHelpContents();">${MESSAGE.get("SfMain", "index.left_nav.quick_links.online_help")}</a></strong></td>
+          </tr>
+          <tr>
+            <td>${MESSAGE.get("SfMain", "index.left_nav.quick_links.online_help.text")}</td>
+          </tr>
+          #if ($home.displaySourceForgeLinks)
+            <tr>
+              <td><strong><a class="menuItem" href="http://www.collab.net/" target="_blank">${MESSAGE.get("SfMain", "index.left_nav.quick_links.collabnet")}</a></strong></td>
+            </tr>
+            <tr>
+              <td>${MESSAGE.get("SfMain", "index.left_nav.quick_links.collabnet.text")}</td>
+            </tr>
+            <tr>
+              <td><strong><a class="menuItem" href="http://www.collab.net/products/teamforge/" target="_blank">${MESSAGE.get("SfMain", "index.left_nav.quick_links.vasw_link")}</a></strong></td>
+            </tr>
+            <tr>
+              <td>${MESSAGE.get("SfMain", "index.left_nav.quick_links.vasw_link.text")}</td>
+            </tr>
+	  #end
+        </table>
+      </div>
+      </div>
+    </td>
+    <!-- Content stuff -->
+    <td class="CategoryListDetails">
+      <table width="770" border="0" cellspacing="0" cellpadding="4">
+        <tr>
+          <td>
+            #if ($home.domainHomePagePresent)
+               #include($home.domainHomePage)
+            #else
+               <img src="/sf-images/misc/home.png" width="543" alt="${MESSAGE.get('common','img.home.text')}" />
+            #end
+          </td>
+        </tr>
+      </table>
+      ${home.communityNews}
+      ## Comment the line above and uncomment the one below, if you want to show news posts from all projects, in the domain home page.
+      ## Keep it as it is, if you want to show news posts from look project alone, in the domain home page.
+      ##${home.siteNews}
+    </td>
+  </tr>
+</table>

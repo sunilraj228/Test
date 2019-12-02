@@ -1,0 +1,10 @@
+##required for a form on the project page to run cli script to export tracker artifacts
+#if ($PAGE_INFO.actionName == 'viewProject')
+        #set( $sfUsername = $PAGE_INFO.currentUser.username )
+        #set( $sfSessionKey = $API60.sessionKey )
+
+        <script>
+                jQuery("input[name='sfUsername']").val('${sfUsername}').change();
+                jQuery("input[name='sfSession']").val('${sfSessionKey}').change();
+        </script>
+#end

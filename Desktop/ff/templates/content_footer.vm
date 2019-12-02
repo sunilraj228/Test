@@ -1,0 +1,114 @@
+## Start Package: ctf_authentication_manager
+#if(${GLOBAL.isApprovalRequiredForNewUsers()} == false)
+#if ( $PAGE_INFO.actionName == 'createAuthenticatedUser' )
+<script>
+
+function doSubmit(){
+
+	if(typeof String.prototype.trim !== 'function') {
+                String.prototype.trim = function() {
+                        return this.replace(/^\s+|\s+$/g, '');
+                };
+        }
+
+        var fullNameObj = document.getElementById("fullName");
+        var emailObj = document.getElementById("email");
+        var passwordObj = document.getElementById("password");
+
+        var isError = "";
+
+        if(passwordObj != null && passwordObj.value.trim().length == 0){
+                isError = "Password is Required \n";
+        }
+
+        if(fullNameObj != null &&  fullNameObj.value.trim().length == 0){
+                isError = isError + "Fullname is Required \n";
+        }
+
+        if(emailObj != null && emailObj.value.trim().length == 0){
+                isError = isError + "Email is Required \n";
+        }
+
+        if(isError.length > 0){
+                alert(isError);
+                return false;
+        } else {
+                return true;
+        }
+}
+
+jQuery(document).ready(function($){
+#if( $PAGE_INFO.getParameter("fail"))
+#set($fail=$PAGE_INFO.getParameter("fail"))
+        $('div#main').prepend('<div class="errorMessage"><strong>$fail</strong></div>');
+#end
+        $('#createAuthenticatedUser').attr('action', '/cgi-bin/createAuthenticatedUser.cgi');
+	$('#createAuthenticatedUser_submit').attr('href','javascript:if(doSubmit()){ document.createAuthenticatedUser.submit(); } else { void(0);  } ');
+});
+</script>
+#end
+#end
+
+## Site Admin alone can do a selective Sync
+## User should be logged in
+## LDAP Sync and User Data Job should be enabled
+## No selective sync for 'admin' user, deleted users and disabled users
+
+#if ( $PAGE_INFO.currentUser.username )
+#set ( $currentuser = $PAGE_INFO.currentUser.username )
+#end
+#set ( $isLoggedIn = $PAGE_INFO.isLoggedIn() )
+#set ( $isSuperUser = $PAGE_INFO.isSuperUser() )
+#if ( $API60.sessionKey )
+#set ( $sfSession  = $API60.sessionKey )
+#end
+#if ( $API60.IntegrationDataApp.getNamespaceId( $sfSession, 'ldap.sync' ) )
+#set ( $nsId = $API60.IntegrationDataApp.getNamespaceId( $sfSession, 'ldap.sync' ) )
+#end
+#if  ( $nsId )
+#if  ($API60.IntegrationDataApp.getDataByKey( $sfSession,  $nsId, 'proj1001', 'ldap.sync.enabled') )
+#set ( $ldapenabled = $API60.IntegrationDataApp.getDataByKey( $sfSession,  $nsId, 'proj1001', 'ldap.sync.enabled') )
+#end
+#if ( $API60.IntegrationDataApp.getDataByKey( $sfSession,  $nsId, 'proj1001', 'ldap.sync.user.data.job.enabled') )
+#set ( $ldapuserjobenabled = $API60.IntegrationDataApp.getDataByKey( $sfSession,  $nsId, 'proj1001', 'ldap.sync.user.data.job.enabled') )
+#end
+#end
+
+#if ( $PAGE_INFO.actionName == 'editUser' )
+<script>
+
+var currentuser;
+var isLoggedIn;
+var isSuperUser;
+var objectId = jQuery('[name="username"]').val();
+var ldapenabled;
+var ldapuserjobenabled;
+var status = jQuery("#status").val();
+var reg = "_hist\\d";
+var isDeleted = objectId.search(reg);
+
+#if ( $currentuser )
+        currentuser = '$currentuser';
+#end
+#if ( $isLoggedIn )
+        isLoggedIn = '$isLoggedIn';
+#end
+#if ( $isSuperUser )
+        isSuperUser = '$isSuperUser';
+#end
+#if ( $ldapenabled )
+        ldapenabled = '$ldapenabled';
+#end
+#if ( $ldapuserjobenabled )
+        ldapuserjobenabled = '$ldapuserjobenabled';
+#end
+
+########if ( isLoggedIn === 'true' && ( isSuperUser === 'true' || currentuser == objectId ) ){
+if ( isLoggedIn === 'true' && isSuperUser === 'true' ){
+        if ( objectId != 'admin' && ldapenabled === 'true' && ldapuserjobenabled === 'true' && status == 'Active' && isDeleted == -1 ){
+                jQuery("#editUser_submit").parent().parent().parent().prepend('&nbsp<div class="Button"><div class="Middle"><a title="Will sync Fullname, Email and Organisation from AD/LDAP" target="_self" href="/cgi-bin/selectedSync.cgi?username='+objectId+'" id="userinfosync">Sync User Info</a></div></div>')
+        }
+}
+</script>
+#end
+## End   Package: ctf_authentication_manager
